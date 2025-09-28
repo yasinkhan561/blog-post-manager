@@ -3,25 +3,63 @@
 namespace Tests\Feature;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
+/**
+ * @mixin \Illuminate\Support\Testing\Fakes\FakeStorage
+ */
 class PostApiTest extends TestCase
 {
     use RefreshDatabase;
 
-     public function test_it_can_list_posts(): void
+    /**
+     * Test that the API can successfully list posts.
+     */
+    public function test_it_can_list_posts(): void
     {
         Post::factory()->count(3)->create();
 
         $response = $this->getJson('/api/posts');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure(['data', 'links', 'meta']);
+                 ->assertJsonStructure([
+                     'data' => [
+                         '*' => ['id', 'title', 'content', 'author', 'image_url', 'published_at', 'created_at', 'updated_at']
+                     ],
+                     'links',
+                     'meta'
+                 ]);
     }
 
+    /**
+     * Test that an unauthenticated user cannot create a post.
+     */
+    public function test_it_requires_authentication_to_create_a_post(): void
+    {
+        $payload = [
+            'title'   => 'Unauthorized Post',
+            'content' => 'This should fail.',
+            'author'  => 'Yasin',
+        ];
+
+        $response = $this->postJson('/api/posts', $payload);
+
+        $response->assertStatus(401);
+    }
+
+    /**
+     * Test that an authenticated user can successfully create a new post.
+     */
     public function test_it_can_create_a_post(): void
     {
+        // Create a user and act as them
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
         $payload = [
             'title'   => 'My First Post',
             'content' => 'This is the body of the post.',
@@ -32,21 +70,80 @@ class PostApiTest extends TestCase
 
         $response->assertStatus(201)
                  ->assertJsonPath('data.title', 'My First Post')
-                 ->assertJsonPath('data.author', 'Yasin');
-
-        $this->assertDatabaseHas('posts', $payload);
+                 ->assertJsonPath('data.author', 'Yasin')
+                 ->assertJsonPath('data.image_url', null); // Assert image_url is null
     }
 
+    /**
+     * Test that an authenticated user can successfully create a new post with an image.
+     */
+    public function test_it_can_create_a_post_with_an_image(): void
+    {
+        // Create a user and act as them
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        Storage::fake('public'); // Mock the public disk
+
+        $file = UploadedFile::fake()->image('post-image.jpg', 600, 400);
+
+        $payload = [
+            'title'   => 'Post with Image',
+            'content' => 'Content with an image.',
+            'author'  => 'Yasin',
+            'image'   => $file, // Attach the fake image file
+        ];
+
+        $response = $this->postJson('/api/posts', $payload);
+
+        $response->assertStatus(201)
+                 ->assertJsonPath('data.title', 'Post with Image')
+                 ->assertJsonPath('data.image_url', 'posts/' . $file->hashName());
+
+        // Assert that the image file exists in storage
+        /** @noinspection PhpUndefinedMethodInspection */
+        Storage::disk('public')->assertExists('posts/' . $file->hashName());
+    }
+
+    /**
+     * Test that the API validates required fields when creating a post.
+     */
     public function test_it_validates_required_fields_when_creating_post(): void
     {
+        // Create a user and act as them
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
         $response = $this->postJson('/api/posts', []);
 
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['title', 'content', 'author']);
     }
 
+    /**
+     * Test that an unauthenticated user cannot update a post.
+     */
+    public function test_it_requires_authentication_to_update_a_post(): void
+    {
+        $post = Post::factory()->create();
+        $payload = [
+            'title' => 'Updated Title',
+        ];
+
+        $response = $this->putJson("/api/posts/{$post->id}", $payload);
+
+        $response->assertStatus(401);
+    }
+
+    /**
+     * Test that an authenticated user can successfully update an existing post.
+     */
     public function test_it_can_update_a_post(): void
     {
+        // Create a user and act as them
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
         $post = Post::factory()->create();
 
         $payload = [
@@ -68,8 +165,64 @@ class PostApiTest extends TestCase
         ]);
     }
 
+    /**
+     * Test that an authenticated user can update an existing post with a new image.
+     */
+    public function test_it_can_update_a_post_with_a_new_image(): void
+    {
+        // Create a user and act as them
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        Storage::fake('public');
+
+        // Create an existing post with an old image file
+        $oldFile = UploadedFile::fake()->image('old-image.jpg');
+        $oldPath = $oldFile->store('posts', 'public');
+        $oldPost = Post::factory()->create(['image_url' => $oldPath]);
+
+        $newFile = UploadedFile::fake()->image('new-image.jpg');
+        
+        $payload = [
+            'title'   => 'Updated Title with New Image',
+            'content' => 'Updated content with new image',
+            'image'   => $newFile,
+        ];
+
+        // Use the correct method for form data with a PUT request in Laravel tests
+        $response = $this->postJson("/api/posts/{$oldPost->id}?_method=PUT", $payload);
+
+        $response->assertStatus(200)
+                 ->assertJsonPath('data.title', 'Updated Title with New Image');
+
+        // Assert the new image exists and the old one is deleted
+        /** @noinspection PhpUndefinedMethodInspection */
+        Storage::disk('public')->assertExists('posts/' . $newFile->hashName());
+        /** @noinspection PhpUndefinedMethodInspection */
+        Storage::disk('public')->assertMissing($oldPath);
+    }
+
+    /**
+     * Test that an unauthenticated user cannot delete a post.
+     */
+    public function test_it_requires_authentication_to_delete_a_post(): void
+    {
+        $post = Post::factory()->create();
+
+        $response = $this->deleteJson("/api/posts/{$post->id}");
+
+        $response->assertStatus(401);
+    }
+
+    /**
+     * Test that an authenticated user can successfully delete a post.
+     */
     public function test_it_can_delete_a_post(): void
     {
+        // Create a user and act as them
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
         $post = Post::factory()->create();
 
         $response = $this->deleteJson("/api/posts/{$post->id}");
@@ -77,5 +230,28 @@ class PostApiTest extends TestCase
         $response->assertNoContent();
 
         $this->assertDatabaseMissing('posts', ['id' => $post->id]);
+    }
+
+    /**
+     * Test that the associated image is deleted when a post is deleted.
+     */
+    public function test_it_deletes_image_when_post_is_deleted(): void
+    {
+        // Create a user and act as them
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        Storage::fake('public');
+        
+        $file = UploadedFile::fake()->image('post-to-delete.jpg');
+        $path = $file->store('posts', 'public');
+        $post = Post::factory()->create(['image_url' => $path]);
+        
+        $this->deleteJson("/api/posts/{$post->id}")
+             ->assertNoContent();
+
+        $this->assertDatabaseMissing('posts', ['id' => $post->id]);
+       
+        Storage::disk('public')->assertMissing($path);
     }
 }

@@ -15,6 +15,7 @@ class PostFactory extends Factory
             'title'        => $this->faker->sentence(6),
             'content'      => $this->faker->paragraphs(3, true),
             'author'       => $this->faker->name(),
+            'image_url'    => $this->faker->imageUrl(640, 480, 'posts', true),
             'published_at' => $this->faker->optional()->dateTimeThisYear(),
         ];
     }

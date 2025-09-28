@@ -25,6 +25,7 @@ class UpdatePostRequest extends FormRequest
                 'title' => 'sometimes|required|string|max:255',
                 'content' => 'sometimes|required|string',
                 'author' => 'sometimes|required|string|max:100',
+                'image'        => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
                 'published_at' => 'nullable|date',
         ];
     }
