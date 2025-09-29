@@ -24,7 +24,10 @@ npm install
 
 # or
 
-yarn install 2. Run the Development Server
+yarn install
+
+2. Run the Development Server
+
 Start the application using Vite:
 
 Bash
@@ -34,7 +37,8 @@ npm run dev
 # or
 
 yarn start
-The application will typically be available at http://localhost:5173.
+
+The application will typically be available at http://localhost:3000.
 
 ✨ Core Features & Implementation Details
 
@@ -45,19 +49,13 @@ Efficient Updates: The updatePostAction is optimized for performance. Instead of
 
 Data Synchronization (Creation): The createPostAction performs a full list fetch (dispatch(fetchPosts())) after a successful creation to guarantee the main list is synchronized before redirecting to the new post's detail page.
 
-2. Global Message Banner System
-   A custom, application-wide notification system provides non-intrusive user feedback. This system uses React Context (or a Redux Slice) to manage its state globally, coupled with the shared MessageBanner component.
-
-Usage: Actions like Post Update and generic API failures trigger this banner (e.g., success message on a successful save, error message on failure).
-
-Types: The system supports four visual states defined by MessageType: SUCCESS, ERROR, WARNING, and INFO.
-
 3. Iconography (Font Awesome)
    Icons are managed using @fortawesome/react-fontawesome for high-quality SVG rendering.
 
 Custom Component: The custom Icon component simplifies usage across the application, handling consistent styling (color, size) based on theme variables.
 
 📂 Project Structure Highlights
+
 Path Purpose
 src/store/ Redux setup, including slices, store configuration, and types.
 src/components/shared/Icon.tsx The reusable component for displaying Font Awesome icons.
