@@ -56,8 +56,14 @@ Custom Component: The custom Icon component simplifies usage across the applicat
 
 📂 Project Structure Highlights
 
-Path Purpose
-src/store/ Redux setup, including slices, store configuration, and types.
+Path Purpose:
+
+src/redux/store Redux setup, including slices, store configuration, and types.
+
 src/components/shared/Icon.tsx The reusable component for displaying Font Awesome icons.
-src/components/shared/messageBanner/ The custom notification component and its styles.
+
 src/api/ Axios instances and dedicated functions for all backend API calls.
+
+src/components/postList for rendering grid based layout
+
+src/components/shared/form contains reusable form components that can be used in future
