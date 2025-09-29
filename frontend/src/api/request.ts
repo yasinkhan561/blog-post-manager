@@ -12,7 +12,7 @@ export const fetchPostsRequest = async (): Promise<Post[]> => {
 /**
  * Create a new post
  */
-export const createPostRequest = async (payload: CreatePostPayload): Promise<Post> => {
+export const createPostRequest = async (payload: FormData): Promise<Post> => {
   const response = await api.post<{ data: Post }>("/posts", payload);
   return response.data.data;
 };
@@ -20,8 +20,11 @@ export const createPostRequest = async (payload: CreatePostPayload): Promise<Pos
 /**
  * Update an existing post
  */
-export const updatePostRequest = async (id: number, payload: Partial<Post>): Promise<Post> => {
-  const response = await api.put<{ data: Post }>(`/posts/${id}`, payload);
+export const updatePostRequest = async (
+  id: number,
+  payload: FormData
+): Promise<Post> => {
+  const response = await api.post<{ data: Post }>(`/posts/${id}`, payload);
   return response.data.data;
 };
 

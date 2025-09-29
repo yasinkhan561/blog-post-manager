@@ -1,6 +1,8 @@
 enum MessageType {
-  ERROR = "Error",
-  WARNING = "Warning",
+  ERROR = "error",
+  WARNING = "warning",
+  SUCCESS = "success",
+  INFO = "info",
 }
 
 export default MessageType;

@@ -1,3 +1,4 @@
+import { Spacing } from "@/theme/defaultTheme";
 import styled, { keyframes } from "styled-components";
 
 const spin = keyframes`
@@ -13,11 +14,21 @@ const LoaderWrapper = styled.div`
 `;
 
 export const Spinner = styled.div`
-  border: 4px solid #f3f3f3; /* Light gray */
-  border-top: 4px solid #3498db; /* Blue */
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
   border-radius: 50%;
   width: 40px;
   height: 40px;
+  animation: ${spin} 1s linear infinite;
+`;
+
+export const ButtonSpinner = styled.div`
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  margin-left: ${Spacing.xs};
   animation: ${spin} 1s linear infinite;
 `;
 

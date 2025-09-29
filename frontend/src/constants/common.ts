@@ -1,5 +1,6 @@
 export const ANIMATION_SPEED = 0.5;
 export const TOAST_VISIBILITY_TIME = 3000;
+export const NAVBAR_HEIGHT = "4.2rem";
 export const TEXT_ONLY_REGEX = /^[a-zA-Z\s\-]+$/;
 
 export const MAX_LENGTHS = {

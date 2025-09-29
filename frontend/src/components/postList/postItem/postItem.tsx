@@ -16,6 +16,9 @@ import { StyledIconButton } from "@/components/shared/buttons/StyledIconButton";
 import { Trash2, Edit } from "lucide-react";
 import { StyledLink } from "@/components/shared/StyledLink";
 import noImagePlaceholder from "@/assets/images/no-image-placeholder.svg";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { IconSize } from "@/theme/defaultTheme";
+import Icon from "@/components/shared/Icon";
 
 interface PostProps {
   post: Post;
@@ -28,13 +31,17 @@ const PostItem = ({ post, onDelete }: PostProps) => {
     <StyledCard>
       <StyledImageContainer>
         <StyledImage
-          src={post.image_url ? post.image_url : placeholderImageUrl}
+          src={post.image_url ?? placeholderImageUrl}
           alt={post.title}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = placeholderImageUrl;
+          }}
         />
       </StyledImageContainer>
       <StyledCardBody>
         <StyledTitleContainer>
-          <StyledLink to={`/post/${post.id}`}>
+          <StyledLink to={`/posts/${post.id}`}>
             <StyledPostTitle>{post.title}</StyledPostTitle>
           </StyledLink>
         </StyledTitleContainer>
@@ -45,13 +52,13 @@ const PostItem = ({ post, onDelete }: PostProps) => {
         <StyledPostAuthor>By {post.author}</StyledPostAuthor>
         <StyledActionButtonsContainer>
           <StyledActionButtonsContainer>
-            <StyledLink to={`/post/${post.id}/edit`}>
+            <StyledLink to={`/posts/${post.id}/edit`}>
               <StyledIconButton>
-                <Edit size={18} />
+                <Icon faIcon={faEdit} $size={IconSize.sm} />
               </StyledIconButton>
             </StyledLink>
             <StyledIconButton onClick={() => onDelete(post.id)}>
-              <Trash2 size={18} />
+              <Icon faIcon={faTrash} $size={IconSize.sm} />
             </StyledIconButton>
           </StyledActionButtonsContainer>
         </StyledActionButtonsContainer>

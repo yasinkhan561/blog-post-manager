@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import ErrorPage from "@/components/errorBoundary/errorPage/errorPage";
+import ErrorPage from "@/components/errorBoundary/errorPage/ErrorPage";
 
 interface State {
   hasError: boolean;
@@ -37,7 +37,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
     });
   };
 
-
+  handleTryAgain = () => {
+    this.handleReset();
+  };
 
   handleGoBack = () => {
     this.handleReset();
@@ -53,6 +55,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
           errorTitle={state.errorTitle}
           errorMessage={state.errorMessageId}
           handleGoBack={this.handleGoBack}
+          handleTryAgain={this.handleTryAgain}
         />
       );
     }

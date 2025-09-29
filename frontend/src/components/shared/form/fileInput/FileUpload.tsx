@@ -6,6 +6,8 @@ import {
   StyledErrorMessage,
 } from "../FormElementStyles";
 
+import noImagePlaceholder from "@/assets/images/no-image-placeholder.svg";
+
 interface FileUploadProps {
   onFileSelect: (file: File | null) => void;
   initialPreview?: string;
@@ -22,6 +24,7 @@ const FileUpload = ({
   error,
 }: FileUploadProps) => {
   const [preview, setPreview] = useState<string | null>(initialPreview || null);
+  const placeholderImageUrl = noImagePlaceholder;
 
   useEffect(() => {
     if (initialPreview) setPreview(initialPreview);
@@ -58,7 +61,14 @@ const FileUpload = ({
 
       {preview && (
         <StyledPreview>
-          <img src={preview} alt="Preview" />
+          <img
+            src={preview}
+            alt="Preview"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = placeholderImageUrl;
+            }}
+          />
         </StyledPreview>
       )}
     </StyledFileUpload>

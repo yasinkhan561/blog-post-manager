@@ -9,7 +9,7 @@ export const StyledCreatePostSection = styled.div`
   border-radius: ${BorderRadius.default};
   line-height: 1.6;
   overflow: hidden;
-  margin: ${Spacing.md} ${Spacing.auto};
+  margin: ${Spacing.xxl} ${Spacing.auto};
   position: relative;
   font-size: 0.875rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),

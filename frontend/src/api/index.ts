@@ -8,9 +8,6 @@ const api = axios.create({
 // Interceptors for adding tokens / logging
 api.interceptors.request.use(
   (config) => {
-    // Example: add auth token if available
-    // const token = localStorage.getItem('token');
-    // if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)

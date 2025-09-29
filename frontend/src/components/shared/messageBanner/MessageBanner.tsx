@@ -1,5 +1,11 @@
 import { ReactNode } from "react";
-import { AlertTriangle, X } from "lucide-react";
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import {
+  faCheckCircle,
+  faExclamationTriangle,
+  faInfoCircle,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 
 import {
   StyledMessageBannerContainer,
@@ -13,6 +19,7 @@ import {
 } from "@/components/shared/messageBanner/MessageBannerStyles";
 import { ColorKey, IconSize } from "@/theme/defaultTheme";
 import MessageType from "@/constants/MessageType";
+import Icon from "@/components/shared/Icon";
 
 export interface MessageBannerButtonProps {
   callback: () => void;
@@ -29,6 +36,12 @@ export interface MessageBannerProps {
   primaryButton?: MessageBannerButtonProps;
 }
 
+interface MessageBannerStyles {
+  [messageBannerType: string]: {
+    backgroundColor: string;
+    icon: IconDefinition;
+  };
+}
 
 const MessageBanner = ({
   children,
@@ -39,18 +52,24 @@ const MessageBanner = ({
   isStackable = true,
   primaryButton,
 }: MessageBannerProps) => {
-  const messageBannerStyles = {
+  const messageBannerStyles: MessageBannerStyles = {
     [MessageType.ERROR]: {
       backgroundColor: ColorKey.danger,
-      IconComponent: AlertTriangle, // Lucide icon component
+      icon: faExclamationTriangle as IconDefinition,
     },
     [MessageType.WARNING]: {
       backgroundColor: ColorKey.warningBannerBackground,
-      IconComponent: AlertTriangle,
+      icon: faExclamationTriangle as IconDefinition,
+    },
+    [MessageType.SUCCESS]: {
+      backgroundColor: ColorKey.success,
+      icon: faCheckCircle as IconDefinition,
+    },
+    [MessageType.INFO]: {
+      backgroundColor: ColorKey.info,
+      icon: faInfoCircle as IconDefinition,
     },
   };
-
-  const IconComponent = type ? messageBannerStyles[type].IconComponent : AlertTriangle;
 
   return (
     <StyledMessageBannerWrapper $isVisible={isVisible}>
@@ -63,12 +82,14 @@ const MessageBanner = ({
         $isStackable={isStackable}
       >
         <StyledMessageBannerContainer $isVisible={isVisible}>
-          {/* Left icon */}
-          <IconComponent
-            color={ColorKey.white}
-            size={IconSize.md}
+          <Icon
+            faIcon={
+              type ? messageBannerStyles[type].icon : faExclamationTriangle
+            }
+            $color={ColorKey.white}
+            $size={IconSize.md}
+            onClick={onCloseCallback}
           />
-
           <StyledMessageBannerContent>
             <StyledMessageBannerMessage>{children}</StyledMessageBannerMessage>
 
@@ -86,7 +107,12 @@ const MessageBanner = ({
 
           {onCloseCallback && (
             <StyledMessageBannerCloseButton onClick={onCloseCallback}>
-              <X color={ColorKey.white} size={IconSize.md} />
+              <Icon
+                faIcon={faTimes}
+                $clickable
+                $color={ColorKey.white}
+                $size={IconSize.md}
+              />
             </StyledMessageBannerCloseButton>
           )}
         </StyledMessageBannerContainer>

@@ -9,4 +9,11 @@ export interface Post {
   updated_at?: string;
 }
 
+export interface PostPayload {
+  title: string;
+  content: string;
+  author: string;
+  image_url?: File | string | null;
+}
+
 export type CreatePostPayload = FormData;

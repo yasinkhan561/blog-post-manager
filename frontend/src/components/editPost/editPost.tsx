@@ -1,107 +1,183 @@
-// import React, { ChangeEvent, useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import { useSelector, useDispatch } from "react-redux";
-// import { RootState, AppDispatch } from "@/redux/store";
-// import { updatePostAction } from "@/redux/posts/actionCreators";
-// import { createPostAction } from "@/redux/posts/actionCreators";
-// import Loader from "@/components/shared/Loader";
-// import StyledButton from "@/components/shared/buttons/StyledButton";
-// import MessageBanner from "@/components/shared/messageBanner/MessageBanner";
-// import MessageType from "@/constants/MessageType";
-// import { StyledCreatePostSection } from "./../createPost/createPostStyles";
-// import TextField from "@/components/shared/form/textField/TextField";
-// import TextArea from "@/components//shared/form/textArea/TextArea";
-// import FileUpload from "@/components/shared/form/fileInput/FileUpload";
+import React, { FormEvent, ChangeEvent } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { updatePostAction } from "@/redux/posts/actionCreators";
+import { useNavigate, useParams } from "react-router-dom";
+import Loader, { ButtonSpinner } from "@/components/shared/Loader";
+import StyledButton from "@/components/shared/buttons/StyledButton";
+import MessageBanner from "@/components/shared/messageBanner/MessageBanner";
+import MessageType from "@/constants/MessageType";
+import {
+  StyledButtonContainer,
+  StyledCreatePostSection,
+  StyledPageTitle,
+} from "../createPost/createPostStyles";
+import TextField from "@/components/shared/form/textField/TextField";
+import TextArea from "@/components//shared/form/textArea/TextArea";
+import FileUpload from "@/components/shared/form/fileInput/FileUpload";
+import { setIsError } from "@/redux/posts";
+import { usePostForm } from "@/hooks/usePostForm";
+import { Post, PostPayload } from "@/types/post";
+import NavigationBar from "../shared/navigation/navigationBar/NavigationBar";
+import ErrorPage from "../errorBoundary/errorPage/ErrorPage";
+import Navigation from "../shared/navigation/Navigation";
 
-// const EditPost = () => {
-//   const { id } = useParams<{ id: string }>();
-//   const navigate = useNavigate();
-//   const dispatch = useDispatch<AppDispatch>();
+type PostFromState = Omit<Post, "image_url"> & {
+  image_url: string | null | undefined;
+};
 
-//   const post = useSelector((state: RootState) =>
-//     state.posts.postList.find((p) => p.id === Number(id))
-//   );
+const selectPostById = (
+  state: RootState,
+  id: number
+): PostFromState | undefined =>
+  state.posts.postList.find((p) => p.id === id) as PostFromState | undefined;
 
-//   const isLoading = useSelector((state: RootState) => state.posts.isLoading);
-//   const isError = useSelector((state: RootState) => state.posts.isError);
+const EditPost = () => {
+  const { id } = useParams<{ id: string }>();
+  const postId = Number(id);
 
-//   const [formData, setFormData] = useState({
-//     title: "",
-//     content: "",
-//     author: "",
-//   });
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
-//   useEffect(() => {
-//     if (post) {
-//       setFormData({
-//         title: post.title,
-//         content: post.content,
-//         author: post.author,
-//       });
-//     }
-//   }, [post]);
+  const existingPost: PostFromState | undefined = useSelector(
+    (state: RootState) => selectPostById(state, postId)
+  );
 
-//   if (!post) return <div>Post not found.</div>;
+  const isLoading = useSelector((state: RootState) => state.posts.isLoading);
+  const isError = useSelector((state: RootState) => state.posts.isError);
 
-//   const handleChange = (field: keyof typeof formData, value: string) => {
-//     setFormData({ ...formData, [field]: value });
-//   };
+  // 2. Use the custom hook, passing the existing post data for initialization
+  const {
+    formData,
+    haveValidationError,
+    setClientErrors,
+    getFieldError,
+    handleChange,
+    handleImageSelect,
+    handleBlur,
+    validateForm,
+  } = usePostForm(existingPost);
 
-//   const handleSubmit = async (data: typeof formData) => {
-//     await dispatch(updatePostAction(post.id, data));
-//     if (!isError) navigate(`/post/${post.id}`);
-//   };
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    dispatch(setIsError(false));
 
-//   return (
-//     <StyledCreatePostSection as="form" onSubmit={handleSubmit}>
-//       Welcome to the Create Post Page
-//       {isError && (
-//         <MessageBanner type={MessageType.ERROR}>
-//           A network error occurred. Please try again.
-//         </MessageBanner>
-//       )}
-//       <TextField
-//         label="Title"
-//         name="title"
-//         value={formData.title}
-//         onChange={(e: ChangeEvent<HTMLInputElement>) =>
-//           handleChange("title", e.target.value)
-//         }
-//         placeholder="Enter post title"
-//         required
-//         error={getFieldError("title")}
-//       />
-//       <TextArea
-//         placeholder="Content"
-//         label="Content"
-//         value={formData.content}
-//         onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-//           handleChange("content", e.target.value)
-//         }
-//         required
-//         error={getFieldError("content")}
-//       />
-//       <TextField
-//         label="Author"
-//         name="author"
-//         value={formData.author}
-//         onChange={(e: ChangeEvent<HTMLInputElement>) =>
-//           handleChange("author", e.target.value)
-//         }
-//         placeholder="Enter author name"
-//         required
-//         error={getFieldError("author")}
-//       />
-//       <FileUpload
-//         label="Upload Post Image"
-//         onFileSelect={(file) => handleChange("image", file)}
-//         error={getFieldError("image")}
-//       />
-//       <StyledButton type="submit" disabled={isLoading}>
-//         {isLoading ? <Loader /> : "Create Post"}
-//       </StyledButton>
-//     </StyledCreatePostSection>
-//   );
-// };
+    // Validation is handled by the hook
+    if (!validateForm()) {
+      return;
+    }
 
-// export default EditPost;
+    if (!existingPost) return;
+
+    const payload = new FormData();
+
+    payload.append("_method", "PUT");
+    payload.append("title", formData.title);
+    payload.append("content", formData.content);
+    payload.append("author", formData.author);
+
+    // Only append the new image file if one was selected
+    if (formData.image) {
+      payload.append("image", formData.image);
+    }
+
+    const result: any = await dispatch(
+      updatePostAction(postId, payload as FormData)
+    );
+
+    if (result.success) {
+      navigate(`/posts/${postId}`);
+    } else {
+      setClientErrors({});
+    }
+  };
+
+  if (!existingPost) {
+    return (
+      <ErrorPage
+        errorMessage="Post Not Found"
+        handleGoBack={() => navigate("/")}
+        handleTryAgain={() => navigate(`/posts/${postId}/edit`)}
+      />
+    );
+  }
+
+  return (
+    <>
+      <NavigationBar>
+        <Navigation />
+      </NavigationBar>
+      {isError && (
+        <MessageBanner type={MessageType.ERROR} isVisible={isError}>
+          Failed to update post. Please check the server logs.
+        </MessageBanner>
+      )}
+      <StyledCreatePostSection
+        as="form"
+        encType="multipart/form-data"
+        onSubmit={handleSubmit}
+      >
+        <StyledPageTitle>Edit Post #{existingPost.id}</StyledPageTitle>
+
+        <TextField
+          label="Title"
+          name="title"
+          value={formData.title}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            handleChange("title", e.target.value)
+          }
+          onBlur={handleBlur}
+          placeholder="Enter post title"
+          error={getFieldError("title")}
+        />
+        <TextArea
+          placeholder="Content"
+          label="Content"
+          name="content"
+          value={formData.content}
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+            handleChange("content", e.target.value)
+          }
+          onBlur={handleBlur}
+          error={getFieldError("content")}
+        />
+        <TextField
+          label="Author"
+          name="author"
+          value={formData.author}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            handleChange("author", e.target.value)
+          }
+          onBlur={handleBlur}
+          placeholder="Enter author name"
+          error={getFieldError("author")}
+        />
+        <FileUpload
+          label="Replace Post Image"
+          initialPreview={existingPost.image_url || undefined}
+          onFileSelect={handleImageSelect}
+          error={getFieldError("image")}
+        />
+        <StyledButtonContainer>
+          <StyledButton
+            type="button"
+            $secondary
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            {"Cancel"}
+          </StyledButton>
+          <StyledButton
+            type="submit"
+            disabled={isLoading || haveValidationError}
+          >
+            Update Post {isLoading ? <ButtonSpinner /> : ""}
+          </StyledButton>
+        </StyledButtonContainer>
+      </StyledCreatePostSection>
+    </>
+  );
+};
+
+export default EditPost;

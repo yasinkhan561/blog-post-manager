@@ -1,33 +1,38 @@
 import styled from "styled-components";
-import { ColorKey, Spacing, TextSize } from "@/theme/defaultTheme";
+import defaultTheme, {
+  Breakpoint,
+  ColorKey,
+  Spacing,
+  TextSize,
+  TextWeight,
+} from "~/theme/defaultTheme";
 
 interface ErrorPageButtonProps {
   $secondary?: boolean;
 }
 
 export const StyledErrorPage = styled.div`
-  background-color: ${({ theme }) => theme.colors[ColorKey.white]};
-  height: 100vh;
+  background-color: ${ColorKey.white};
+  min-height: 100%;
   width: 100%;
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
+  padding: ${Spacing.xs};
 `;
 
 export const StyledButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 5rem;
-  margin: 4rem 0;
+  gap: ${Spacing.xxxl};
+  margin: 4rem ${Spacing.none};
 
-  @media ("max-width: 37.5em") {
+  @media (${Breakpoint.forPhoneOnly}) {
     flex-direction: column;
-    gap: 0;
-    margin: 2rem 0;
+    gap: ${Spacing.none};
+    margin: ${Spacing.md} ${Spacing.none};
   }
 `;
 
@@ -45,36 +50,38 @@ export const StyledImageWrapper = styled.div`
 `;
 
 export const StyledErrorTitle = styled.label`
-  font-size: ${TextSize.xxl};
-  color: ${({ theme }) => theme.colors[ColorKey.primaryTextColor]};
-  font-weight: 400;
+  font-size: 3rem;
+  color: ${defaultTheme.colors[ColorKey.primaryTextColor]};
+  font-weight: ${TextWeight.semiBold};
   text-align: center;
-  padding: 0;
-  margin-bottom: ${Spacing.sm};
+  padding: ${Spacing.none};
+  margin-bottom: ${Spacing.xxl};
 `;
 
 export const StyledErrorMessage = styled.label`
-  font-size: 2rem;
-  color: ${({ theme }) => theme.colors[ColorKey.primaryTextColor]};
-  font-weight: normal;
+  font-size: ${TextSize.xl};
+  color: ${defaultTheme.colors[ColorKey.primaryTextColor]};
+  font-weight: ${TextWeight.regular};
   text-align: center;
-  padding: ${Spacing.none} ${Spacing.xxs};
-  margin-bottom: ${Spacing.xl};
+  padding: ${Spacing.none} ${Spacing.xs};
 `;
 
 export const StyledErrorPageButton = styled.button<ErrorPageButtonProps>`
   position: relative;
   border-radius: 40px;
   border: none;
-  padding: 1rem 1.2rem;
+  padding: ${Spacing.buttonPadding};
 
   white-space: nowrap;
-  font-size: 2rem;
+  font-size: ${TextSize.xl};
   min-width: 15rem;
   max-width: 25rem;
-  color: #fff;
+  color: ${ColorKey.white};
 
-  background-color: #333;
+  background-color: ${({ $secondary }) =>
+    $secondary
+      ? defaultTheme.colors[ColorKey.secondaryButton]
+      : defaultTheme.colors[ColorKey.primaryButton]};
 
   overflow: visible;
   text-overflow: ellipsis;
@@ -96,9 +103,14 @@ export const StyledErrorPageButton = styled.button<ErrorPageButtonProps>`
       border-radius: 42px;
       border-width: 2px;
       border-style: solid;
-      border-color: #333
+      border-color: ${({ $secondary }) =>
+        $secondary
+          ? defaultTheme.colors[ColorKey.secondaryButton]
+          : defaultTheme.colors[ColorKey.primaryButton]};
       overflow: visible;
     }
   }
- 
+  @media (${Breakpoint.forPhoneOnly}) {
+    margin: ${Spacing.xxs};
+  }
 `;
