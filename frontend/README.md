@@ -1,12 +1,65 @@
-# React + Vite
+Frontend Application: React & Redux Toolkit
+This folder contains the client-side application for the Blog Post Manager, built with React, TypeScript, and Redux Toolkit for robust state management.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🛠️ Tech Stack Overview
+Area Technologies Used
+Framework React (via Vite)
+State Management Redux Toolkit, React-Redux
+Styling Styled-Components
+Routing React Router DOM v7
+Data Fetching Axios
+Utilities Lodash
+Icons Font Awesome (Free Solid)
 
-Currently, two official plugins are available:
+Export to Sheets
+🚀 Local Setup & Installation
+Follow these steps to get the frontend server running locally. Ensure you have started the Dockerized backend API first.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. Install Dependencies
+   Navigate to this frontend directory and install all required packages:
 
-## Expanding the ESLint configuration
+Bash
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+npm install
+
+# or
+
+yarn install 2. Run the Development Server
+Start the application using Vite:
+
+Bash
+
+npm run dev
+
+# or
+
+yarn start
+The application will typically be available at http://localhost:5173.
+
+✨ Core Features & Implementation Details
+
+1. State Management (Redux Toolkit)
+   All application data is managed via Redux Toolkit slices, with API interactions handled using Async Thunks to manage loading and error states.
+
+Efficient Updates: The updatePostAction is optimized for performance. Instead of triggering a full data re-fetch after a successful save, it dispatches a local updatePost action to instantly modify only the specific post in the Redux state. This avoids unnecessary network overhead.
+
+Data Synchronization (Creation): The createPostAction performs a full list fetch (dispatch(fetchPosts())) after a successful creation to guarantee the main list is synchronized before redirecting to the new post's detail page.
+
+2. Global Message Banner System
+   A custom, application-wide notification system provides non-intrusive user feedback. This system uses React Context (or a Redux Slice) to manage its state globally, coupled with the shared MessageBanner component.
+
+Usage: Actions like Post Update and generic API failures trigger this banner (e.g., success message on a successful save, error message on failure).
+
+Types: The system supports four visual states defined by MessageType: SUCCESS, ERROR, WARNING, and INFO.
+
+3. Iconography (Font Awesome)
+   Icons are managed using @fortawesome/react-fontawesome for high-quality SVG rendering.
+
+Custom Component: The custom Icon component simplifies usage across the application, handling consistent styling (color, size) based on theme variables.
+
+📂 Project Structure Highlights
+Path Purpose
+src/store/ Redux setup, including slices, store configuration, and types.
+src/components/shared/Icon.tsx The reusable component for displaying Font Awesome icons.
+src/components/shared/messageBanner/ The custom notification component and its styles.
+src/api/ Axios instances and dedicated functions for all backend API calls.

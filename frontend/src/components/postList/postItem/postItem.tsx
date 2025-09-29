@@ -13,7 +13,6 @@ import {
   StyledImage,
 } from "./postItemStyles";
 import { StyledIconButton } from "@/components/shared/buttons/StyledIconButton";
-import { Trash2, Edit } from "lucide-react";
 import { StyledLink } from "@/components/shared/StyledLink";
 import noImagePlaceholder from "@/assets/images/no-image-placeholder.svg";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
