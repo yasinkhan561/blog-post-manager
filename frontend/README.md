@@ -1,7 +1,7 @@
-Frontend Application: React & Redux Toolkit
+# Frontend Application: React & Redux Toolkit
 This folder contains the client-side application for the Blog Post Manager, built with React, TypeScript, and Redux Toolkit for robust state management.
 
-🛠️ Tech Stack Overview
+# 🛠️ Tech Stack Overview
 Area Technologies Used
 Framework React (via Vite)
 State Management Redux Toolkit, React-Redux
@@ -11,7 +11,6 @@ Data Fetching Axios
 Utilities Lodash
 Icons Font Awesome (Free Solid)
 
-Export to Sheets
 🚀 Local Setup & Installation
 Follow these steps to get the frontend server running locally. Ensure you have started the Dockerized backend API first.
 
@@ -54,7 +53,7 @@ Data Synchronization (Creation): The createPostAction performs a full list fetch
 
 Custom Component: The custom Icon component simplifies usage across the application, handling consistent styling (color, size) based on theme variables.
 
-📂 Project Structure Highlights
+# 📂 Project Structure Highlights
 
 Path Purpose:
 
