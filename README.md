@@ -45,7 +45,7 @@ npm install
 # Start the React development server
 
 npm run dev
-The frontend application will typically be available at http://localhost:5173.
+The frontend application will typically be available at http://localhost:3000
 
 💻 Detailed Documentation
 For specific instructions, development workflows, and deep dives into each part of the stack, please refer to the dedicated README files:
